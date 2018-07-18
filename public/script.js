@@ -30,10 +30,21 @@ window.onload=function(){
     };
 
     messageButton.onclick=function(){
+        let nickname;
+        if(message.value.indexOf('@')!==-1){
+            let start=message.value.indexOf('@');
+            if(message.value.indexOf(' ')!==-1){
+            nickname=message.value.substring(start+1,message.value.text.indexOf(' ',start));
+            }
+            else{
+            nickname=message.value.substring(start+1);
+            }
+        }
         let data={
             senderName: name+`(${nick})`,
             text: message.value,
-            date: new Date().getTime()
+            date: new Date().getTime(),
+            receiverNick:nickname||'none'
         }
         message.value="";
         ajaxRequest({
@@ -42,55 +53,6 @@ window.onload=function(){
             data:data
         })
     };
-
-    message.oninput=function(){
-        let tokensArr=message.value.split('/\t|\n|,|.|!|?|:|;/');
-        tokensArr=tokensArr[0].split(' ');
-        for(let i=0;i<tokensArr.length;i++){
-            if(tokensArr[i].includes('@')){
-                input=tokensArr[i].substring(1);
-                console.log(input);
-                break;
-            }
-        }
-
-        if(input.length>0){
-        let userArr=[].slice.call(usersUl.childNodes);
-        for(let i=0;i<userArr.length;i++){
-
-            
-            if(userArr[i].childNodes[0].innerHTML.toLowerCase().includes(input.toLowerCase())){
-
-                console.log(colorUser);
-
-                if(colorUser){
-                    console.log('1');
-                    if(colorUser.innerHTML==userArr[i].childNodes[0]){
-                    continue;
-                    }
-                }
-
-                if(!colorUser){
-                    console.log('2');
-                    colorUser=userArr[i].childNodes[0];
-                    colorUser.classList.add('color');
-                    break;    
-                }
-                // else{
-                //     colorUser.classList.remove("color");
-                //     colorUser=userArr[i].childNodes[0];
-                //     colorUser.classList.add("color");
-                //     console.log('3');
-                //     break;
-                // }
-            }
-
-            
-            
-        }
-    }
-
-    }
 
     let ajaxRequest=function(options){
         let method=options.method||'GET';
@@ -140,7 +102,12 @@ window.onload=function(){
                 messages=JSON.parse(messages);
                 for(let i=0;i<messages.length;i++){
                     let el=document.createElement('div');
-                    el.className="sms";
+                    el.className="sms"; 
+                    if(messages[i].receiverNick!='none'){
+                        if(messages[i].receiverNick==nick){
+                            el.classList.add("green");
+                        }
+                    }
                     el.innerHTML=`<h5>${messages[i].senderName}</h5>`+`<h6>${messages[i].text}</h6>`;
                     messagesBlock.appendChild(el);
                 }
